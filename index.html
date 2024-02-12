@@ -112,13 +112,13 @@
 
     // function to generate coins on platforms
     function generateCoins() {
-      for (let i = 0; i < platforms.length; i++) {
-        if (Math.random() < 0.3) { // 30% chance for a coin to spawn on a platform
-          const coinX = platforms[i].x + platformWidth / 2 - coinImg.width / 2;
-          const coinY = platforms[i].y - coinImg.height;
+      platforms.forEach(function(platform) {
+        if (Math.random() < 0.1) { // 10% chance for a coin to spawn on a platform
+          const coinX = platform.x + platformWidth / 2 - coinImg.width / 2;
+          const coinY = platform.y - coinImg.height;
           coins.push({ x: coinX, y: coinY, collected: false });
         }
-      }
+      });
     }
 
     // Coins counter
@@ -206,11 +206,13 @@
 
     // Game over function
     function gameOver() {
-      gameOverFlag = true; // Set game over flag to prevent multiple triggers
-      context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-      context.fillText("OH NO.. CRINGE ! Press F5 to restart.", 50, canvas.height / 2); // Display game over message
-      document.getElementById('gameOverMessage').style.display = 'block'; // Show game over message
-      document.getElementById('coinCounter').style.display = 'none'; // Hide coin counter
+      if (!gameOverFlag) {
+        gameOverFlag = true; // Set game over flag to prevent multiple triggers
+        context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+        context.fillText("OH NO.. CRINGE.. Press F5 to restart.", 50, canvas.height / 2); // Display game over message
+        document.getElementById('gameOverMessage').style.display = 'block'; // Show game over message
+        document.getElementById('coinCounter').style.display = 'none'; // Hide coin counter
+      }
     }
 
     // game loop
