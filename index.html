@@ -141,6 +141,7 @@
     let prevDoodleY = doodle.y;
     let gameStarted = false; // Variable to track if the game has started
     let heightCounter = 0; // Height counter
+    let gameOverFlag = false; // Variable to track game over state
 
     // Load jump sound
     const jumpSound = document.getElementById('jumpSound');
@@ -167,8 +168,7 @@
       context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
       document.getElementById('gameOverMessage').style.display = 'block'; // Show game over message
       canvas.style.filter = 'blur(4px)'; // Freeze the game
-      fallSound.currentTime = 0; // Rewind fall sound
-      fallSound.play(); // Play fall sound
+      gameOverFlag = true; // Set game over flag
     }
 
     // game loop
@@ -271,6 +271,11 @@
 
       // Check if doodle falls below canvas
       if (doodle.y > canvas.height) {
+        // Play fall sound only once
+        if (!gameOverFlag) {
+          fallSound.currentTime = 0; // Rewind sound to start
+          fallSound.play(); // Play fall sound
+        }
         // Game over
         gameOver();
         return; // Stop the game loop
