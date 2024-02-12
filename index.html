@@ -10,14 +10,14 @@
     margin: 0;
     background-color: black; /* Couleur de fond noire */
     color: white; /* Couleur du texte */
+    position: relative; /* Position relative pour les éléments positionnés absolument */
   }
 
   body {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: column; /* Alignement vertical pour le texte */
-    position: relative; /* Position relative pour les éléments positionnés absolument */
+    flex-direction: column; /* Alignement vertical pour le contenu */
   }
 
   canvas {
@@ -25,10 +25,9 @@
   }
 
   #startMessage {
+    display: none; /* Par défaut, le message de démarrage est caché */
     position: absolute;
-    top: 20px;
-    left: 20px;
-    display: block; /* Afficher le message de démarrage par défaut */
+    bottom: 20px; /* Placer le message en bas du jeu */
   }
 
   #gameplay {
@@ -45,7 +44,7 @@
 
   #doodleMarioText {
     position: absolute;
-    top: 20px;
+    top: 20px; /* Placer le titre en haut du jeu */
     left: 50%;
     transform: translateX(-50%); /* Centrer horizontalement */
   }
@@ -164,10 +163,9 @@ platformImg.onload = function() {
     if (!gameStarted) {
       gameStarted = true; // Set gameStarted to true
       document.getElementById('startMessage').style.display = 'none'; // Hide start message
-      document.getElementById('doodleMarioText').style.display = 'none'; // Hide Doodle Mario text
       document.getElementById('gameplay').style.display = 'block'; // Show gameplay
       canvas.focus(); // Focus on canvas for key events
-      loop(); // Start the game loop
+      requestAnimationFrame(loop); // Start the game loop
     }
   }
 
@@ -313,7 +311,6 @@ platformImg.onload = function() {
       playerDir = 1;
       doodle.dx = 3;
     }
-    console.log('Key pressed:', e.code); // Debugging
   });
 
   document.addEventListener('keyup', function(e) {
