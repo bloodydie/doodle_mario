@@ -238,13 +238,8 @@
         doodle.x = -doodle.width;
       }
 
-      // draw platforms
-      platforms.forEach(function(platform) {
-        context.drawImage(platformImg, platform.x, platform.y, platformWidth, platformHeight);
-      });
-
       // make doodle jump if it collides with a platform from above
-      platforms.forEach(function(platform) {
+      platforms.forEach(function(platform, index) {
         if (
           // doodle is falling
           doodle.dy > 0 &&
@@ -263,6 +258,9 @@
           doodle.y = platform.y - doodle.height;
           doodle.dy = bounceVelocity;
 
+          // Remove the platform from the array
+          platforms.splice(index, 1);
+
           // Play jump sound
           const jumpSound = document.getElementById('jumpSound');
           jumpSound.currentTime = 0; // Rewind sound to start
@@ -280,6 +278,11 @@
         gameOver();
         return; // Stop the game loop
       }
+
+      // draw platforms
+      platforms.forEach(function(platform) {
+        context.drawImage(platformImg, platform.x, platform.y, platformWidth, platformHeight);
+      });
 
       // draw doodle
       if (playerDir < 0) {
