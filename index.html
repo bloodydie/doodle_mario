@@ -27,6 +27,10 @@
   <source src="jump.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
+<audio id="fallSound">
+  <source src="fall.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
 <script>
 const canvas = document.getElementById('game');
 const context = canvas.getContext('2d');
@@ -109,6 +113,10 @@ let prevDoodleY = doodle.y;
 // Load jump sound
 const jumpSound = document.getElementById('jumpSound');
 jumpSound.load(); // Charge le son dès le début
+
+// Load fall sound
+const fallSound = document.getElementById('fallSound');
+fallSound.load(); // Charge le son dès le début
 
 // game loop
 function loop() {
@@ -204,6 +212,15 @@ function loop() {
       jumpSound.play();
     }
   });
+
+  // Check if doodle falls below canvas
+  if (doodle.y > canvas.height) {
+    fallSound.currentTime = 0; // Rewind sound to start
+    fallSound.play(); // Play fall sound
+    // Reset doodle position
+    doodle.x = canvas.width / 2 - 20;
+    doodle.y = platformStart - 60;
+  }
 
   // draw doodle
   if (playerDir < 0) {
