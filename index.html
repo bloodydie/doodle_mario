@@ -15,15 +15,23 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column; /* Ajout de la direction de la colonne pour le centre du texte */
+    color: white; /* Couleur du texte */
   }
 
   canvas {
     border: 5px solid white; /* Bordure blanche */
+    margin-bottom: 20px; /* Espacement entre le canvas et le texte */
+  }
+
+  #startMessage {
+    display: none; /* Par défaut, le message de démarrage est caché */
   }
   </style>
 </head>
 <body>
 <canvas width="375" height="667" id="game"></canvas>
+<div id="startMessage">Press SPACE to play !</div>
 <audio id="jumpSound">
   <source src="jump.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
@@ -114,6 +122,7 @@ platformImg.onload = function() {
   let playerDir = 0;
   let keydown = false;
   let prevDoodleY = doodle.y;
+  let gameStarted = false; // Variable to track if the game has started
 
   // Load jump sound
   const jumpSound = document.getElementById('jumpSound');
@@ -124,8 +133,25 @@ platformImg.onload = function() {
   const fallSound = document.getElementById('fallSound');
   fallSound.load(); // Charge le son dès le début
 
+  // Game start function
+  function startGame() {
+    if (!gameStarted) {
+      gameStarted = true; // Set gameStarted to true
+      document.getElementById('startMessage').style.display = 'none'; // Hide start message
+      requestAnimationFrame(loop); // Start the game loop
+    }
+  }
+
+  // Game over function
+  function gameOver() {
+    context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+    context.fillText("OH NO.. CRINGE !", 50, canvas.height / 2); // Display game over message
+  }
+
   // game loop
   function loop() {
+    if (!gameStarted) return; // If game has not started, return without looping
+
     requestAnimationFrame(loop);
     context.clearRect(0,0,canvas.width,canvas.height);
 
@@ -224,9 +250,9 @@ platformImg.onload = function() {
     if (doodle.y > canvas.height) {
       fallSound.currentTime = 0; // Rewind sound to start
       fallSound.play(); // Play fall sound
-      // Reset doodle position
-      doodle.x = canvas.width / 2 - 20;
-      doodle.y = platformStart - 60;
+      // Game over
+      gameOver();
+      return; // Stop the game loop
     }
 
     // draw doodle
@@ -244,29 +270,12 @@ platformImg.onload = function() {
     })
   }
 
-  // listen to keyboard events to move doodle
+  // Listen for keyboard events to start the game
   document.addEventListener('keydown', function(e) {
-    // left arrow key
-    if (e.which === 37) {
-      keydown = true;
-      playerDir = -1;
-      doodle.dx = -3;
-
-    }
-    // right arrow key
-    else if (e.which === 39) {
-      keydown = true;
-      playerDir = 1;
-      doodle.dx = 3;
+    if (e.code === 'Space') {
+      startGame();
     }
   });
-
-  document.addEventListener('keyup', function(e) {
-    keydown = false;
-  });
-
-  // start the game
-  requestAnimationFrame(loop);
 };
 </script>
 </body>
