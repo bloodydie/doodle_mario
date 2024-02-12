@@ -101,7 +101,8 @@
     // bottom middle of the screen
     let platforms = [{
       x: canvas.width / 2 - platformWidth / 2,
-      y: platformStart
+      y: platformStart,
+      spawned: false // Flag to track if a coin has been spawned on this platform
     }];
 
     // Coins
@@ -113,10 +114,11 @@
     // function to generate coins on platforms
     function generateCoins() {
       platforms.forEach(function(platform) {
-        if (Math.random() < 0.1) { // 10% chance for a coin to spawn on a platform
+        if (!platform.spawned && Math.random() < 0.1) { // 10% chance for a coin to spawn on a platform
           const coinX = platform.x + platformWidth / 2 - coinImg.width / 2;
           const coinY = platform.y - coinImg.height;
           coins.push({ x: coinX, y: coinY, collected: false });
+          platform.spawned = true; // Mark the platform as spawned
         }
       });
     }
@@ -170,7 +172,7 @@
         x < canvas.width / 2 + platformWidth / 2
       );
 
-      platforms.push({ x, y });
+      platforms.push({ x, y, spawned: false }); // Initially, no coin is spawned on the platform
     }
 
     // the doodle jumper
@@ -190,8 +192,20 @@
     let keydown = false;
     let prevDoodleY = doodle.y;
     let gameStarted = false; // Variable to track if the game has started
-    let heightCounter = 0; // Height counter
     let gameOverFlag = false; // Flag to prevent multiple game over triggers
+
+    // Load jump sound
+    const jumpSound = document.getElementById('jumpSound');
+    jumpSound.load(); // Charge le son dès le début
+    jumpSound.volume = 0.3; // Réglez le volume à 30%
+
+    // Load fall sound
+    const fallSound = document.getElementById('fallSound');
+    fallSound.load(); // Charge le son dès le début
+
+    // Load coin sound
+    const coinSound = document.getElementById('coinSound');
+    coinSound.load(); // Charge le son dès le début
 
     // Game start function
     function startGame() {
@@ -236,7 +250,8 @@
         while (platforms[platforms.length - 1].y > 0) {
           platforms.push({
             x: random(25, canvas.width - 25 - platformWidth),
-            y: platforms[platforms.length - 1].y - (platformHeight + random(minPlatformSpace, maxPlatformSpace))
+            y: platforms[platforms.length - 1].y - (platformHeight + random(minPlatformSpace, maxPlatformSpace)),
+            spawned: false // No coin spawned on the newly created platform
           })
 
           // add a bit to the min/max platform space as the player goes up
@@ -316,6 +331,10 @@
 
       // Check if doodle falls below canvas
       if (doodle.y > canvas.height) {
+        // Play fall sound
+        const fallSound = document.getElementById('fallSound');
+        fallSound.currentTime = 0; // Rewind sound to start
+        fallSound.play(); // Play fall sound
         // Game over
         gameOver();
         return; // Stop the game loop
@@ -364,11 +383,13 @@
     // start the game
     // requestAnimationFrame(loop); // Start the game loop after pressing Space key
   }
+};
 
-  // Get a random number between min (inclusive) and max (exclusive)
-  function random(min, max) {
-    return Math.random() * (max - min) + min;
-  }
+// Get a random number between the min (inclusive) and max (exclusive)
+function random(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
 </script>
 </body>
 </html>
