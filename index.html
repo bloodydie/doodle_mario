@@ -27,9 +27,12 @@
 const canvas = document.getElementById('game');
 const context = canvas.getContext('2d');
 
-// Load Mario image
-const marioImg = new Image();
-marioImg.src = 'mario.png';
+// Load Mario images for left and right movements
+const marioLeftImg = new Image();
+marioLeftImg.src = 'player_g.png';
+
+const marioRightImg = new Image();
+marioRightImg.src = 'player_d.png';
 
 // width and height of each platform and where platforms start
 const platformWidth = 65;
@@ -191,9 +194,11 @@ function loop() {
   });
 
   // draw doodle
-  //context.fillStyle = 'yellow';
-  //context.fillRect(doodle.x, doodle.y, doodle.width, doodle.height);
-  context.drawImage(marioImg, doodle.x, doodle.y, doodle.width, doodle.height);
+  if (playerDir < 0) {
+    context.drawImage(marioLeftImg, doodle.x, doodle.y, doodle.width, doodle.height);
+  } else {
+    context.drawImage(marioRightImg, doodle.x, doodle.y, doodle.width, doodle.height);
+  }
 
   prevDoodleY = doodle.y;
 
