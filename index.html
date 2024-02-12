@@ -109,18 +109,19 @@
     const coinImg = new Image();
     coinImg.src = 'coin.png';
 
+    const redCoinImg = new Image();
+    redCoinImg.src = 'redcoin.png';
+
     const coins = [];
 
     // function to generate coins on platforms
     function generateCoins() {
-      platforms.forEach(function(platform) {
-        if (!platform.spawned && Math.random() < 0.1) { // 10% chance for a coin to spawn on a platform
-          const coinX = platform.x + platformWidth / 2 - coinImg.width / 2;
-          const coinY = platform.y - coinImg.height;
-          coins.push({ x: coinX, y: coinY, collected: false });
-          platform.spawned = true; // Mark the platform as spawned
-        }
-      });
+      if (Math.random() < 0.01) { // 1% chance to spawn a coin
+        const coinX = Math.random() * (canvas.width - coinImg.width);
+        const coinY = 0;
+        const isRed = Math.random() < 0.05; // 5% chance to spawn a red coin
+        coins.push({ x: coinX, y: coinY, isRed: isRed, collected: false });
+      }
     }
 
     // Coins counter
@@ -130,16 +131,17 @@
     function drawCoins() {
       coins.forEach(function(coin, index) {
         if (!coin.collected) {
-          context.drawImage(coinImg, coin.x, coin.y);
+          const img = coin.isRed ? redCoinImg : coinImg;
+          context.drawImage(img, coin.x, coin.y);
           // check for collision with doodle
           if (
-            doodle.x < coin.x + coinImg.width &&
+            doodle.x < coin.x + img.width &&
             doodle.x + doodle.width > coin.x &&
-            doodle.y < coin.y + coinImg.height &&
+            doodle.y < coin.y + img.height &&
             doodle.y + doodle.height > coin.y
           ) {
             coin.collected = true;
-            coinsCollected++;
+            coinsCollected += coin.isRed ? 5 : 1;
             document.getElementById('coinCounter').innerText = 'Coins: ' + coinsCollected;
             // Play coin sound
             const coinSound = document.getElementById('coinSound');
