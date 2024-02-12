@@ -25,7 +25,7 @@
   }
 
   #startMessage {
-    display: none; /* Par défaut, le message de démarrage est caché */
+    display: block; /* Afficher le message de démarrage par défaut */
   }
 
   #gameplay {
@@ -173,7 +173,7 @@ platformImg.onload = function() {
       document.getElementById('doodleMarioText').style.display = 'none'; // Hide Doodle Mario text
       document.getElementById('gameplay').style.display = 'block'; // Show gameplay
       canvas.focus(); // Focus on canvas for key events
-      requestAnimationFrame(loop); // Start the game loop
+      loop(); // Start the game loop
     }
   }
 
@@ -189,6 +189,9 @@ platformImg.onload = function() {
 
     requestAnimationFrame(loop);
     context.clearRect(0,0,canvas.width,canvas.height);
+
+    // Draw texts
+    context.fillText("Height: " + heightCounter, canvas.width - 150, 50); // Display height counter
 
     // apply gravity to doodle
     doodle.dy += gravity;
@@ -301,7 +304,6 @@ platformImg.onload = function() {
 
     // update height counter
     heightCounter = Math.max(heightCounter, platformStart - doodle.y);
-    context.fillText("Height: " + heightCounter, canvas.width - 150, 50); // Display height counter
   }
 
   // Listen for keyboard events to start the game
@@ -319,6 +321,7 @@ platformImg.onload = function() {
       playerDir = 1;
       doodle.dx = 3;
     }
+    console.log('Key pressed:', e.code); // Debugging
   });
 
   document.addEventListener('keyup', function(e) {
