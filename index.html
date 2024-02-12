@@ -41,6 +41,12 @@
       bottom: 20px; /* Placer le message en bas du jeu */
       display: none; /* Cacher le message par défaut */
     }
+
+    #coinCounter {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
   </style>
 </head>
 <body>
@@ -49,12 +55,17 @@
   <canvas width="375" height="667" id="game"></canvas>
 </div>
 <div id="gameOverMessage">OH NO.. CRINGE.. Press F5 to restart.</div>
+<div id="coinCounter">Coins: 0</div>
 <audio id="jumpSound">
   <source src="jump.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
 <audio id="fallSound" loop>
   <source src="fall.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+<audio id="coinSound">
+  <source src="coin.wav" type="audio/wav">
   Your browser does not support the audio element.
 </audio>
 <script>
@@ -93,9 +104,48 @@
       y: platformStart
     }];
 
-    // get a random number between the min (inclusive) and max (exclusive)
-    function random(min, max) {
-      return Math.random() * (max - min) + min;
+    // Coins
+    const coinImg = new Image();
+    coinImg.src = 'coin.png';
+
+    const coins = [];
+
+    // function to generate coins on platforms
+    function generateCoins() {
+      for (let i = 0; i < platforms.length; i++) {
+        if (Math.random() < 0.3) { // 30% chance for a coin to spawn on a platform
+          const coinX = platforms[i].x + platformWidth / 2 - coinImg.width / 2;
+          const coinY = platforms[i].y - coinImg.height;
+          coins.push({ x: coinX, y: coinY, collected: false });
+        }
+      }
+    }
+
+    // Coins counter
+    let coinsCollected = 0;
+
+    // draw coins and check for collection
+    function drawCoins() {
+      coins.forEach(function(coin, index) {
+        if (!coin.collected) {
+          context.drawImage(coinImg, coin.x, coin.y);
+          // check for collision with doodle
+          if (
+            doodle.x < coin.x + coinImg.width &&
+            doodle.x + doodle.width > coin.x &&
+            doodle.y < coin.y + coinImg.height &&
+            doodle.y + doodle.height > coin.y
+          ) {
+            coin.collected = true;
+            coinsCollected++;
+            document.getElementById('coinCounter').innerText = 'Coins: ' + coinsCollected;
+            // Play coin sound
+            const coinSound = document.getElementById('coinSound');
+            coinSound.currentTime = 0; // Rewind sound to start
+            coinSound.play(); // Play coin sound
+          }
+        }
+      });
     }
 
     // fill the initial screen with platforms
@@ -141,16 +191,7 @@
     let prevDoodleY = doodle.y;
     let gameStarted = false; // Variable to track if the game has started
     let heightCounter = 0; // Height counter
-    let gameOverFlag = false; // Variable to track game over state
-
-    // Load jump sound
-    const jumpSound = document.getElementById('jumpSound');
-    jumpSound.load(); // Charge le son dès le début
-    jumpSound.volume = 0.3; // Réglez le volume à 30%
-
-    // Load fall sound
-    const fallSound = document.getElementById('fallSound');
-    fallSound.load(); // Charge le son dès le début
+    let gameOverFlag = false; // Flag to prevent multiple game over triggers
 
     // Game start function
     function startGame() {
@@ -165,10 +206,11 @@
 
     // Game over function
     function gameOver() {
+      gameOverFlag = true; // Set game over flag to prevent multiple triggers
       context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+      context.fillText("OH NO.. CRINGE ! Press F5 to restart.", 50, canvas.height / 2); // Display game over message
       document.getElementById('gameOverMessage').style.display = 'block'; // Show game over message
-      canvas.style.filter = 'blur(4px)'; // Freeze the game
-      gameOverFlag = true; // Set game over flag
+      document.getElementById('coinCounter').style.display = 'none'; // Hide coin counter
     }
 
     // game loop
@@ -264,6 +306,7 @@
           doodle.dy = bounceVelocity;
 
           // Play jump sound
+          const jumpSound = document.getElementById('jumpSound');
           jumpSound.currentTime = 0; // Rewind sound to start
           jumpSound.play();
         }
@@ -271,11 +314,6 @@
 
       // Check if doodle falls below canvas
       if (doodle.y > canvas.height) {
-        // Play fall sound only once
-        if (!gameOverFlag) {
-          fallSound.currentTime = 0; // Rewind sound to start
-          fallSound.play(); // Play fall sound
-        }
         // Game over
         gameOver();
         return; // Stop the game loop
@@ -293,6 +331,11 @@
       // update height counter
       heightCounter = Math.max(heightCounter, platformStart - doodle.y);
       context.fillText("Height: " + heightCounter, canvas.width - 150, 50); // Display height counter
+
+      // Generate coins
+      generateCoins();
+      // Draw coins
+      drawCoins();
     }
 
     // Listen for keyboard events to start the game
@@ -318,6 +361,11 @@
 
     // start the game
     // requestAnimationFrame(loop); // Start the game loop after pressing Space key
+  }
+
+  // Get a random number between min (inclusive) and max (exclusive)
+  function random(min, max) {
+    return Math.random() * (max - min) + min;
   }
 </script>
 </body>
