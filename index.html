@@ -26,6 +26,10 @@
 const canvas = document.getElementById('game');
 const context = canvas.getContext('2d');
 
+// Load Mario image
+const marioImg = new Image();
+marioImg.src = 'mario.png';
+
 // width and height of each platform and where platforms start
 const platformWidth = 65;
 const platformHeight = 20;
@@ -186,8 +190,9 @@ function loop() {
   });
 
   // draw doodle
-  context.fillStyle = 'yellow';
-  context.fillRect(doodle.x, doodle.y, doodle.width, doodle.height);
+  //context.fillStyle = 'yellow';
+  //context.fillRect(doodle.x, doodle.y, doodle.width, doodle.height);
+  context.drawImage(marioImg, doodle.x, doodle.y, doodle.width, doodle.height);
 
   prevDoodleY = doodle.y;
 
