@@ -9,29 +9,59 @@
     height: 100%;
     margin: 0;
     background-color: black; /* Couleur de fond noire */
+    color: white; /* Couleur du texte */
   }
 
   body {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: column; /* Ajout de la direction de la colonne pour le centre du texte */
-    color: white; /* Couleur du texte */
+    flex-direction: column; /* Alignement vertical pour le texte */
+    position: relative; /* Position relative pour les éléments positionnés absolument */
   }
 
   canvas {
     border: 5px solid white; /* Bordure blanche */
-    margin-bottom: 20px; /* Espacement entre le canvas et le texte */
   }
 
   #startMessage {
     display: none; /* Par défaut, le message de démarrage est caché */
   }
+
+  #gameplay {
+    display: none; /* Par défaut, le gameplay est caché */
+  }
+
+  #gameplay canvas {
+    cursor: none; /* Masquer le curseur pendant le gameplay */
+  }
+
+  #gameplay canvas:focus {
+    outline: none; /* Supprimer le focus du canvas pendant le gameplay */
+  }
+
+  #icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centrer horizontalement et verticalement */
+  }
+
+  #doodleMarioText {
+    position: absolute;
+    top: calc(50% + 50px); /* Placer le texte 50px en dessous de l'icône */
+    left: 50%;
+    transform: translateX(-50%); /* Centrer horizontalement */
+  }
   </style>
 </head>
 <body>
-<canvas width="375" height="667" id="game"></canvas>
 <div id="startMessage">Press SPACE to play !</div>
+<div id="gameplay">
+  <canvas width="375" height="667" id="game"></canvas>
+</div>
+<img id="icon" src="icon.png" alt="Doodle Mario Icon">
+<div id="doodleMarioText">DOODLE MARIO</div>
 <audio id="jumpSound">
   <source src="jump.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
@@ -123,6 +153,7 @@ platformImg.onload = function() {
   let keydown = false;
   let prevDoodleY = doodle.y;
   let gameStarted = false; // Variable to track if the game has started
+  let heightCounter = 0; // Height counter
 
   // Load jump sound
   const jumpSound = document.getElementById('jumpSound');
@@ -138,6 +169,10 @@ platformImg.onload = function() {
     if (!gameStarted) {
       gameStarted = true; // Set gameStarted to true
       document.getElementById('startMessage').style.display = 'none'; // Hide start message
+      document.getElementById('icon').style.display = 'none'; // Hide icon
+      document.getElementById('doodleMarioText').style.display = 'none'; // Hide Doodle Mario text
+      document.getElementById('gameplay').style.display = 'block'; // Show gameplay
+      canvas.focus(); // Focus on canvas for key events
       requestAnimationFrame(loop); // Start the game loop
     }
   }
@@ -145,7 +180,7 @@ platformImg.onload = function() {
   // Game over function
   function gameOver() {
     context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-    context.fillText("OH NO.. CRINGE !", 50, canvas.height / 2); // Display game over message
+    context.fillText("OH NO.. CRINGE ! Press F5 to restart.", 50, canvas.height / 2); // Display game over message
   }
 
   // game loop
@@ -264,10 +299,9 @@ platformImg.onload = function() {
 
     prevDoodleY = doodle.y;
 
-    // remove any platforms that have gone offscreen
-    platforms = platforms.filter(function(platform) {
-      return platform.y < canvas.height;
-    })
+    // update height counter
+    heightCounter = Math.max(heightCounter, platformStart - doodle.y);
+    context.fillText("Height: " + heightCounter, canvas.width - 150, 50); // Display height counter
   }
 
   // Listen for keyboard events to start the game
@@ -275,8 +309,24 @@ platformImg.onload = function() {
     if (e.code === 'Space') {
       startGame();
     }
+    else if (e.code === 'ArrowLeft') {
+      keydown = true;
+      playerDir = -1;
+      doodle.dx = -3;
+    }
+    else if (e.code === 'ArrowRight') {
+      keydown = true;
+      playerDir = 1;
+      doodle.dx = 3;
+    }
   });
-};
+
+  document.addEventListener('keyup', function(e) {
+    keydown = false;
+  });
+
+  // start the game
+  // requestAnimationFrame(loop); // Start the game loop after pressing Space key
 </script>
 </body>
 </html>
