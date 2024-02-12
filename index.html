@@ -24,11 +24,6 @@
       border: 5px solid white; /* Bordure blanche */
     }
 
-    #startMessage, #gameOverMessage {
-      position: absolute;
-      bottom: 20px; /* Placer le message en bas du jeu */
-    }
-
     #gameplay {
       display: none; /* Par défaut, le gameplay est caché */
     }
@@ -39,6 +34,12 @@
 
     #gameplay canvas:focus {
       outline: none; /* Supprimer le focus du canvas pendant le gameplay */
+    }
+
+    #gameOverMessage {
+      position: absolute;
+      bottom: 20px; /* Placer le message en bas du jeu */
+      display: none; /* Cacher le message par défaut */
     }
   </style>
 </head>
@@ -52,7 +53,7 @@
   <source src="jump.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
-<audio id="fallSound">
+<audio id="fallSound" loop>
   <source src="fall.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
@@ -166,6 +167,8 @@
       context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
       document.getElementById('gameOverMessage').style.display = 'block'; // Show game over message
       canvas.style.filter = 'blur(4px)'; // Freeze the game
+      fallSound.currentTime = 0; // Rewind fall sound
+      fallSound.play(); // Play fall sound
     }
 
     // game loop
@@ -268,8 +271,6 @@
 
       // Check if doodle falls below canvas
       if (doodle.y > canvas.height) {
-        fallSound.currentTime = 0; // Rewind sound to start
-        fallSound.play(); // Play fall sound
         // Game over
         gameOver();
         return; // Stop the game loop
