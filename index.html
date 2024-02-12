@@ -69,328 +69,329 @@
   Your browser does not support the audio element.
 </audio>
 <script>
-  const canvas = document.getElementById('game');
-  const context = canvas.getContext('2d');
+  document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('game');
+    const context = canvas.getContext('2d');
 
-  // Load Mario images for left and right movements
-  const marioLeftImg = new Image();
-  marioLeftImg.src = 'player_g.png';
+    // Load Mario images for left and right movements
+    const marioLeftImg = new Image();
+    marioLeftImg.src = 'player_g.png';
 
-  const marioRightImg = new Image();
-  marioRightImg.src = 'player_d.png';
+    const marioRightImg = new Image();
+    marioRightImg.src = 'player_d.png';
 
-  // Load platform image
-  const platformImg = new Image();
-  platformImg.src = 'platform.png';
-  platformImg.onload = function() {
-    // width and height of each platform and where platforms start
-    const platformWidth = 65;
-    const platformHeight = 20;
-    const platformStart = canvas.height - 50;
+    // Load platform image
+    const platformImg = new Image();
+    platformImg.src = 'platform.png';
+    platformImg.onload = function() {
+      // width and height of each platform and where platforms start
+      const platformWidth = 65;
+      const platformHeight = 20;
+      const platformStart = canvas.height - 50;
 
-    // player physics
-    const gravity = 0.33;
-    const drag = 0.3;
-    const bounceVelocity = -12.5;
+      // player physics
+      const gravity = 0.33;
+      const drag = 0.3;
+      const bounceVelocity = -12.5;
 
-    // minimum and maximum vertical space between each platform
-    let minPlatformSpace = 15;
-    let maxPlatformSpace = 20;
+      // minimum and maximum vertical space between each platform
+      let minPlatformSpace = 15;
+      let maxPlatformSpace = 20;
 
-    // information about each platform. the first platform starts in the
-    // bottom middle of the screen
-    let platforms = [{
-      x: canvas.width / 2 - platformWidth / 2,
-      y: platformStart,
-      spawned: false // Flag to track if a coin has been spawned on this platform
-    }];
+      // information about each platform. the first platform starts in the
+      // bottom middle of the screen
+      let platforms = [{
+        x: canvas.width / 2 - platformWidth / 2,
+        y: platformStart,
+        spawned: false // Flag to track if a coin has been spawned on this platform
+      }];
 
-    // Coins
-    const coinImg = new Image();
-    coinImg.src = 'coin.png';
+      // Coins
+      const coinImg = new Image();
+      coinImg.src = 'coin.png';
 
-    const redCoinImg = new Image();
-    redCoinImg.src = 'redcoin.png';
+      const redCoinImg = new Image();
+      redCoinImg.src = 'redcoin.png';
 
-    const coins = [];
+      const coins = [];
 
-    // function to generate coins on platforms
-    function generateCoins() {
-      if (Math.random() < 0.01) { // 1% chance to spawn a coin
-        const coinX = Math.random() * (canvas.width - coinImg.width);
-        const coinY = 0;
-        const isRed = Math.random() < 0.05; // 5% chance to spawn a red coin
-        coins.push({ x: coinX, y: coinY, isRed: isRed, collected: false });
+      // function to generate coins on platforms
+      function generateCoins() {
+        if (Math.random() < 0.01) { // 1% chance to spawn a coin
+          const coinX = Math.random() * (canvas.width - coinImg.width);
+          const coinY = 0;
+          const isRed = Math.random() < 0.05; // 5% chance to spawn a red coin
+          coins.push({ x: coinX, y: coinY, isRed: isRed, collected: false });
+        }
       }
-    }
 
-    // Coins counter
-    let coinsCollected = 0;
+      // Coins counter
+      let coinsCollected = 0;
 
-    // draw coins and check for collection
-    function drawCoins() {
-      coins.forEach(function(coin, index) {
-        if (!coin.collected) {
-          const img = coin.isRed ? redCoinImg : coinImg;
-          context.drawImage(img, coin.x, coin.y);
-          // check for collision with doodle
-          if (
-            doodle.x < coin.x + img.width &&
-            doodle.x + doodle.width > coin.x &&
-            doodle.y < coin.y + img.height &&
-            doodle.y + doodle.height > coin.y
-          ) {
-            coin.collected = true;
-            coinsCollected += coin.isRed ? 5 : 1;
-            document.getElementById('coinCounter').innerText = 'Coins: ' + coinsCollected;
-            // Play coin sound
-            const coinSound = document.getElementById('coinSound');
-            coinSound.currentTime = 0; // Rewind sound to start
-            coinSound.play(); // Play coin sound
+      // draw coins and check for collection
+      function drawCoins() {
+        coins.forEach(function(coin, index) {
+          if (!coin.collected) {
+            const img = coin.isRed ? redCoinImg : coinImg;
+            context.drawImage(img, coin.x, coin.y);
+            // check for collision with doodle
+            if (
+              doodle.x < coin.x + img.width &&
+              doodle.x + doodle.width > coin.x &&
+              doodle.y < coin.y + img.height &&
+              doodle.y + doodle.height > coin.y
+            ) {
+              coin.collected = true;
+              coinsCollected += coin.isRed ? 5 : 1;
+              document.getElementById('coinCounter').innerText = 'Coins: ' + coinsCollected;
+              // Play coin sound
+              const coinSound = document.getElementById('coinSound');
+              coinSound.currentTime = 0; // Rewind sound to start
+              coinSound.play(); // Play coin sound
+            }
+          }
+        });
+      }
+
+      // fill the initial screen with platforms
+      let y = platformStart;
+      while (y > 0) {
+        // the next platform can be placed above the previous one with a space
+        // somewhere between the min and max space
+        y -= platformHeight + random(minPlatformSpace, maxPlatformSpace);
+
+        // a platform can be placed anywhere 25px from the left edge of the canvas
+        // and 25px from the right edge of the canvas (taking into account platform
+        // width).
+        // however the first few platforms cannot be placed in the center so
+        // that the player will bounce up and down without going up the screen
+        // until they are ready to move
+        let x;
+        do {
+          x = random(25, canvas.width - 25 - platformWidth);
+        } while (
+          y > canvas.height / 2 &&
+          x > canvas.width / 2 - platformWidth * 1.5 &&
+          x < canvas.width / 2 + platformWidth / 2
+        );
+
+        platforms.push({ x, y, spawned: false }); // Initially, no coin is spawned on the platform
+      }
+
+      // the doodle jumper
+      const doodle = {
+        width: 40,
+        height: 60,
+        x: canvas.width / 2 - 20,
+        y: platformStart - 60,
+
+        // velocity
+        dx: 0,
+        dy: 0
+      };
+
+      // keep track of player direction and actions
+      let playerDir = 0;
+      let keydown = false;
+      let prevDoodleY = doodle.y;
+      let gameStarted = false; // Variable to track if the game has started
+      let gameOverFlag = false; // Flag to prevent multiple game over triggers
+
+      // Load jump sound
+      const jumpSound = document.getElementById('jumpSound');
+      jumpSound.load(); // Charge le son dès le début
+      jumpSound.volume = 0.3; // Réglez le volume à 30%
+
+      // Load fall sound
+      const fallSound = document.getElementById('fallSound');
+      fallSound.load(); // Charge le son dès le début
+
+      // Load coin sound
+      const coinSound = document.getElementById('coinSound');
+      coinSound.load(); // Charge le son dès le début
+
+      // Game start function
+      function startGame() {
+        if (!gameStarted) {
+          gameStarted = true; // Set gameStarted to true
+          document.getElementById('startMessage').style.display = 'none'; // Hide start message
+          document.getElementById('gameplay').style.display = 'block'; // Show gameplay
+          canvas.focus(); // Focus on canvas for key events
+          requestAnimationFrame(loop); // Start the game loop
+        }
+      }
+
+      // Game over function
+      function gameOver() {
+        if (!gameOverFlag) {
+          gameOverFlag = true; // Set game over flag to prevent multiple triggers
+          context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+          context.fillText("OH NO.. CRINGE.. Press F5 to restart.", 50, canvas.height / 2); // Display game over message
+          document.getElementById('gameOverMessage').style.display = 'block'; // Show game over message
+          document.getElementById('coinCounter').style.display = 'none'; // Hide coin counter
+        }
+      }
+
+      // game loop
+      function loop() {
+        if (!gameStarted) return; // If game has not started, return without looping
+
+        requestAnimationFrame(loop);
+        context.clearRect(0,0,canvas.width,canvas.height);
+
+        // apply gravity to doodle
+        doodle.dy += gravity;
+
+        // if doodle reaches the middle of the screen, move the platforms down
+        // instead of doodle up to make it look like doodle is going up
+        if (doodle.y < canvas.height / 2 && doodle.dy < 0) {
+          platforms.forEach(function(platform) {
+            platform.y += -doodle.dy;
+          });
+
+          // add more platforms to the top of the screen as doodle moves up
+          while (platforms[platforms.length - 1].y > 0) {
+            platforms.push({
+              x: random(25, canvas.width - 25 - platformWidth),
+              y: platforms[platforms.length - 1].y - (platformHeight + random(minPlatformSpace, maxPlatformSpace)),
+              spawned: false // No coin spawned on the newly created platform
+            })
+
+            // add a bit to the min/max platform space as the player goes up
+            minPlatformSpace += 0.5;
+            maxPlatformSpace += 0.5;
+
+            // cap max space
+            maxPlatformSpace = Math.min(maxPlatformSpace, canvas.height / 2);
           }
         }
-      });
-    }
+        else {
+          doodle.y += doodle.dy;
+        }
 
-    // fill the initial screen with platforms
-    let y = platformStart;
-    while (y > 0) {
-      // the next platform can be placed above the previous one with a space
-      // somewhere between the min and max space
-      y -= platformHeight + random(minPlatformSpace, maxPlatformSpace);
+        // only apply drag to horizontal movement if key is not pressed
+        if (!keydown) {
+          if (playerDir < 0) {
+            doodle.dx += drag;
 
-      // a platform can be placed anywhere 25px from the left edge of the canvas
-      // and 25px from the right edge of the canvas (taking into account platform
-      // width).
-      // however the first few platforms cannot be placed in the center so
-      // that the player will bounce up and down without going up the screen
-      // until they are ready to move
-      let x;
-      do {
-        x = random(25, canvas.width - 25 - platformWidth);
-      } while (
-        y > canvas.height / 2 &&
-        x > canvas.width / 2 - platformWidth * 1.5 &&
-        x < canvas.width / 2 + platformWidth / 2
-      );
+            // don't let dx go above 0
+            if (doodle.dx > 0) {
+              doodle.dx = 0;
+              playerDir = 0;
+            }
+          }
+          else if (playerDir > 0) {
+            doodle.dx -= drag;
 
-      platforms.push({ x, y, spawned: false }); // Initially, no coin is spawned on the platform
-    }
+            if (doodle.dx < 0) {
+              doodle.dx = 0;
+              playerDir = 0;
+            }
+          }
+        }
 
-    // the doodle jumper
-    const doodle = {
-      width: 40,
-      height: 60,
-      x: canvas.width / 2 - 20,
-      y: platformStart - 60,
+        doodle.x += doodle.dx;
 
-      // velocity
-      dx: 0,
-      dy: 0
-    };
+        // make doodle wrap the screen
+        if (doodle.x + doodle.width < 0) {
+          doodle.x = canvas.width;
+        }
+        else if (doodle.x > canvas.width) {
+          doodle.x = -doodle.width;
+        }
 
-    // keep track of player direction and actions
-    let playerDir = 0;
-    let keydown = false;
-    let prevDoodleY = doodle.y;
-    let gameStarted = false; // Variable to track if the game has started
-    let gameOverFlag = false; // Flag to prevent multiple game over triggers
-
-    // Load jump sound
-    const jumpSound = document.getElementById('jumpSound');
-    jumpSound.load(); // Charge le son dès le début
-    jumpSound.volume = 0.3; // Réglez le volume à 30%
-
-    // Load fall sound
-    const fallSound = document.getElementById('fallSound');
-    fallSound.load(); // Charge le son dès le début
-
-    // Load coin sound
-    const coinSound = document.getElementById('coinSound');
-    coinSound.load(); // Charge le son dès le début
-
-    // Game start function
-    function startGame() {
-      if (!gameStarted) {
-        gameStarted = true; // Set gameStarted to true
-        document.getElementById('startMessage').style.display = 'none'; // Hide start message
-        document.getElementById('gameplay').style.display = 'block'; // Show gameplay
-        canvas.focus(); // Focus on canvas for key events
-        requestAnimationFrame(loop); // Start the game loop
-      }
-    }
-
-    // Game over function
-    function gameOver() {
-      if (!gameOverFlag) {
-        gameOverFlag = true; // Set game over flag to prevent multiple triggers
-        context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-        context.fillText("OH NO.. CRINGE.. Press F5 to restart.", 50, canvas.height / 2); // Display game over message
-        document.getElementById('gameOverMessage').style.display = 'block'; // Show game over message
-        document.getElementById('coinCounter').style.display = 'none'; // Hide coin counter
-      }
-    }
-
-    // game loop
-    function loop() {
-      if (!gameStarted) return; // If game has not started, return without looping
-
-      requestAnimationFrame(loop);
-      context.clearRect(0,0,canvas.width,canvas.height);
-
-      // apply gravity to doodle
-      doodle.dy += gravity;
-
-      // if doodle reaches the middle of the screen, move the platforms down
-      // instead of doodle up to make it look like doodle is going up
-      if (doodle.y < canvas.height / 2 && doodle.dy < 0) {
+        // draw platforms
         platforms.forEach(function(platform) {
-          platform.y += -doodle.dy;
+          context.drawImage(platformImg, platform.x, platform.y, platformWidth, platformHeight);
         });
 
-        // add more platforms to the top of the screen as doodle moves up
-        while (platforms[platforms.length - 1].y > 0) {
-          platforms.push({
-            x: random(25, canvas.width - 25 - platformWidth),
-            y: platforms[platforms.length - 1].y - (platformHeight + random(minPlatformSpace, maxPlatformSpace)),
-            spawned: false // No coin spawned on the newly created platform
-          })
+        // make doodle jump if it collides with a platform from above
+        platforms.forEach(function(platform) {
+          if (
+            // doodle is falling
+            doodle.dy > 0 &&
 
-          // add a bit to the min/max platform space as the player goes up
-          minPlatformSpace += 0.5;
-          maxPlatformSpace += 0.5;
+            // doodle was previous above the platform
+            prevDoodleY + doodle.height <= platform.y &&
 
-          // cap max space
-          maxPlatformSpace = Math.min(maxPlatformSpace, canvas.height / 2);
+            // doodle collides with platform
+            // (Axis Aligned Bounding Box [AABB] collision check)
+            doodle.x < platform.x + platformWidth &&
+            doodle.x + doodle.width > platform.x &&
+            doodle.y < platform.y + platformHeight &&
+            doodle.y + doodle.height > platform.y
+          ) {
+            // reset doodle position so it's on top of the platform
+            doodle.y = platform.y - doodle.height;
+            doodle.dy = bounceVelocity;
+
+            // Play jump sound
+            const jumpSound = document.getElementById('jumpSound');
+            jumpSound.currentTime = 0; // Rewind sound to start
+            jumpSound.play();
+          }
+        });
+
+        // Check if doodle falls below canvas
+        if (doodle.y > canvas.height) {
+          // Play fall sound
+          const fallSound = document.getElementById('fallSound');
+          fallSound.currentTime = 0; // Rewind sound to start
+          fallSound.play(); // Play fall sound
+          // Game over
+          gameOver();
+          return; // Stop the game loop
         }
-      }
-      else {
-        doodle.y += doodle.dy;
-      }
 
-      // only apply drag to horizontal movement if key is not pressed
-      if (!keydown) {
+        // draw doodle
         if (playerDir < 0) {
-          doodle.dx += drag;
-
-          // don't let dx go above 0
-          if (doodle.dx > 0) {
-            doodle.dx = 0;
-            playerDir = 0;
-          }
+          context.drawImage(marioLeftImg, doodle.x, doodle.y, doodle.width, doodle.height);
+        } else {
+          context.drawImage(marioRightImg, doodle.x, doodle.y, doodle.width, doodle.height);
         }
-        else if (playerDir > 0) {
-          doodle.dx -= drag;
 
-          if (doodle.dx < 0) {
-            doodle.dx = 0;
-            playerDir = 0;
-          }
+        prevDoodleY = doodle.y;
+
+        // update height counter
+        heightCounter = Math.max(heightCounter, platformStart - doodle.y);
+        context.fillText("Height: " + heightCounter, canvas.width - 150, 50); // Display height counter
+
+        // Generate coins
+        generateCoins();
+        // Draw coins
+        drawCoins();
+      }
+
+      // Listen for keyboard events to start the game
+      document.addEventListener('keydown', function(e) {
+        if (e.code === 'Space') {
+          startGame();
         }
-      }
-
-      doodle.x += doodle.dx;
-
-      // make doodle wrap the screen
-      if (doodle.x + doodle.width < 0) {
-        doodle.x = canvas.width;
-      }
-      else if (doodle.x > canvas.width) {
-        doodle.x = -doodle.width;
-      }
-
-      // draw platforms
-      platforms.forEach(function(platform) {
-        context.drawImage(platformImg, platform.x, platform.y, platformWidth, platformHeight);
-      });
-
-      // make doodle jump if it collides with a platform from above
-      platforms.forEach(function(platform) {
-        if (
-          // doodle is falling
-          doodle.dy > 0 &&
-
-          // doodle was previous above the platform
-          prevDoodleY + doodle.height <= platform.y &&
-
-          // doodle collides with platform
-          // (Axis Aligned Bounding Box [AABB] collision check)
-          doodle.x < platform.x + platformWidth &&
-          doodle.x + doodle.width > platform.x &&
-          doodle.y < platform.y + platformHeight &&
-          doodle.y + doodle.height > platform.y
-        ) {
-          // reset doodle position so it's on top of the platform
-          doodle.y = platform.y - doodle.height;
-          doodle.dy = bounceVelocity;
-
-          // Play jump sound
-          const jumpSound = document.getElementById('jumpSound');
-          jumpSound.currentTime = 0; // Rewind sound to start
-          jumpSound.play();
+        else if (e.code === 'ArrowLeft') {
+          keydown = true;
+          playerDir = -1;
+          doodle.dx = -3;
+        }
+        else if (e.code === 'ArrowRight') {
+          keydown = true;
+          playerDir = 1;
+          doodle.dx = 3;
         }
       });
 
-      // Check if doodle falls below canvas
-      if (doodle.y > canvas.height) {
-        // Play fall sound
-        const fallSound = document.getElementById('fallSound');
-        fallSound.currentTime = 0; // Rewind sound to start
-        fallSound.play(); // Play fall sound
-        // Game over
-        gameOver();
-        return; // Stop the game loop
-      }
+      document.addEventListener('keyup', function(e) {
+        keydown = false;
+      });
 
-      // draw doodle
-      if (playerDir < 0) {
-        context.drawImage(marioLeftImg, doodle.x, doodle.y, doodle.width, doodle.height);
-      } else {
-        context.drawImage(marioRightImg, doodle.x, doodle.y, doodle.width, doodle.height);
-      }
-
-      prevDoodleY = doodle.y;
-
-      // update height counter
-      heightCounter = Math.max(heightCounter, platformStart - doodle.y);
-      context.fillText("Height: " + heightCounter, canvas.width - 150, 50); // Display height counter
-
-      // Generate coins
-      generateCoins();
-      // Draw coins
-      drawCoins();
+      // start the game
+      // requestAnimationFrame(loop); // Start the game loop after pressing Space key
     }
+  });
 
-    // Listen for keyboard events to start the game
-    document.addEventListener('keydown', function(e) {
-      if (e.code === 'Space') {
-        startGame();
-      }
-      else if (e.code === 'ArrowLeft') {
-        keydown = true;
-        playerDir = -1;
-        doodle.dx = -3;
-      }
-      else if (e.code === 'ArrowRight') {
-        keydown = true;
-        playerDir = 1;
-        doodle.dx = 3;
-      }
-    });
-
-    document.addEventListener('keyup', function(e) {
-      keydown = false;
-    });
-
-    // start the game
-    // requestAnimationFrame(loop); // Start the game loop after pressing Space key
+  // Get a random number between the min (inclusive) and max (exclusive)
+  function random(min, max) {
+    return Math.random() * (max - min) + min;
   }
-};
-
-// Get a random number between the min (inclusive) and max (exclusive)
-function random(min, max) {
-  return Math.random() * (max - min) + min;
-}
 
 </script>
 </body>
