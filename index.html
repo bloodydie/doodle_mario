@@ -71,6 +71,10 @@
   <source src="fall.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
+<audio id="coinSound">
+  <source src="coin.wav" type="audio/wav">
+  Your browser does not support the audio element.
+</audio>
 <script>
   const canvas = document.getElementById('game');
   const context = canvas.getContext('2d');
@@ -126,6 +130,7 @@
     let prevDoodleY = doodle.y;
     let gameStarted = false; // Variable to track if the game has started
     let gameOverFlag = false; // Flag to prevent multiple game over triggers
+    let lastLevel = 1; // Variable to track the last level passed
 
     // Load jump sound
     const jumpSound = document.getElementById('jumpSound');
@@ -135,6 +140,10 @@
     // Load fall sound
     const fallSound = document.getElementById('fallSound');
     fallSound.load(); // Charge le son dès le début
+
+    // Load coin sound
+    const coinSound = document.getElementById('coinSound');
+    coinSound.load(); // Charge le son dès le début
 
     // Game start function
     function startGame() {
@@ -316,7 +325,12 @@
       level++;
       document.getElementById('levelCounter').innerText = 'Level: ' + level;
       // Increase game difficulty by accelerating doodle movement
-      doodle.dx *= (1 + accelerationFactor);
+      doodle.dx *= (1 + accelerationFactor * level / 10);
+
+      // Play coin sound
+      const coinSound = document.getElementById('coinSound');
+      coinSound.currentTime = 0; // Rewind sound to start
+      coinSound.play();
     }
 
     // Listen for keyboard events to start the game
