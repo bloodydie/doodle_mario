@@ -40,13 +40,6 @@
     outline: none; /* Supprimer le focus du canvas pendant le gameplay */
   }
 
-  #icon {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); /* Centrer horizontalement et verticalement */
-  }
-
   #doodleMarioText {
     position: absolute;
     top: calc(50% + 50px); /* Placer le texte 50px en dessous de l'icône */
@@ -60,7 +53,6 @@
 <div id="gameplay">
   <canvas width="375" height="667" id="game"></canvas>
 </div>
-<img id="icon" src="icon.png" alt="Doodle Mario Icon">
 <div id="doodleMarioText">DOODLE MARIO</div>
 <audio id="jumpSound">
   <source src="jump.mp3" type="audio/mpeg">
@@ -169,7 +161,6 @@ platformImg.onload = function() {
     if (!gameStarted) {
       gameStarted = true; // Set gameStarted to true
       document.getElementById('startMessage').style.display = 'none'; // Hide start message
-      document.getElementById('icon').style.display = 'none'; // Hide icon
       document.getElementById('doodleMarioText').style.display = 'none'; // Hide Doodle Mario text
       document.getElementById('gameplay').style.display = 'block'; // Show gameplay
       canvas.focus(); // Focus on canvas for key events
@@ -189,9 +180,6 @@ platformImg.onload = function() {
 
     requestAnimationFrame(loop);
     context.clearRect(0,0,canvas.width,canvas.height);
-
-    // Draw texts
-    context.fillText("Height: " + heightCounter, canvas.width - 150, 50); // Display height counter
 
     // apply gravity to doodle
     doodle.dy += gravity;
@@ -304,6 +292,7 @@ platformImg.onload = function() {
 
     // update height counter
     heightCounter = Math.max(heightCounter, platformStart - doodle.y);
+    context.fillText("Height: " + heightCounter, canvas.width - 150, 50); // Display height counter
   }
 
   // Listen for keyboard events to start the game
