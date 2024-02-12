@@ -38,9 +38,6 @@ marioLeftImg.src = 'player_g.png';
 const marioRightImg = new Image();
 marioRightImg.src = 'player_d.png';
 
-// Load jump sound
-const jumpSound = document.getElementById('jumpSound');
-
 // width and height of each platform and where platforms start
 const platformWidth = 65;
 const platformHeight = 20;
@@ -108,6 +105,10 @@ const doodle = {
 let playerDir = 0;
 let keydown = false;
 let prevDoodleY = doodle.y;
+
+// Load jump sound
+const jumpSound = document.getElementById('jumpSound');
+jumpSound.load(); // Charge le son dès le début
 
 // game loop
 function loop() {
