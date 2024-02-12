@@ -131,6 +131,7 @@
     let gameStarted = false; // Variable to track if the game has started
     let gameOverFlag = false; // Flag to prevent multiple game over triggers
     let lastLevel = 1; // Variable to track the last level passed
+    let gameSpeed = 1; // Initial game speed factor
 
     // Load jump sound
     const jumpSound = document.getElementById('jumpSound');
@@ -182,7 +183,7 @@
       // instead of doodle up to make it look like doodle is going up
       if (doodle.y < canvas.height / 2 && doodle.dy < 0) {
         platforms.forEach(function(platform) {
-          platform.y += -doodle.dy;
+          platform.y += -doodle.dy * gameSpeed; // Adjust platform speed based on gameSpeed
         });
 
         // add more platforms to the top of the screen as doodle moves up
@@ -324,9 +325,8 @@
     function increaseLevel() {
       level++;
       document.getElementById('levelCounter').innerText = 'Level: ' + level;
-      // Increase game difficulty by accelerating doodle movement
-      doodle.dx *= (1 + accelerationFactor * level / 10);
-
+      // Increase game speed factor by 10%
+      gameSpeed *= 1.1;
       // Play coin sound
       const coinSound = document.getElementById('coinSound');
       coinSound.currentTime = 0; // Rewind sound to start
