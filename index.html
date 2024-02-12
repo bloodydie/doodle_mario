@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Basic Doodle Jump HTML Game</title>
+  <title>Doodle Mario</title>
   <meta charset="UTF-8">
   <style>
   html, body {
@@ -41,6 +41,10 @@ marioLeftImg.src = 'player_g.png';
 
 const marioRightImg = new Image();
 marioRightImg.src = 'player_d.png';
+
+// Load platform image
+const platformImg = new Image();
+platformImg.src = 'platform.png';
 
 // width and height of each platform and where platforms start
 const platformWidth = 65;
@@ -184,11 +188,12 @@ function loop() {
   }
 
   // draw platforms
-  context.fillStyle = 'green';
   platforms.forEach(function(platform) {
-    context.fillRect(platform.x, platform.y, platformWidth, platformHeight);
+    context.drawImage(platformImg, platform.x, platform.y, platformWidth, platformHeight);
+  });
 
-    // make doodle jump if it collides with a platform from above
+  // make doodle jump if it collides with a platform from above
+  platforms.forEach(function(platform) {
     if (
       // doodle is falling
       doodle.dy > 0 &&
