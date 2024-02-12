@@ -23,6 +23,10 @@
 </head>
 <body>
 <canvas width="375" height="667" id="game"></canvas>
+<audio id="jumpSound">
+  <source src="jump.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
 <script>
 const canvas = document.getElementById('game');
 const context = canvas.getContext('2d');
@@ -33,6 +37,9 @@ marioLeftImg.src = 'player_g.png';
 
 const marioRightImg = new Image();
 marioRightImg.src = 'player_d.png';
+
+// Load jump sound
+const jumpSound = document.getElementById('jumpSound');
 
 // width and height of each platform and where platforms start
 const platformWidth = 65;
@@ -190,6 +197,10 @@ function loop() {
       // reset doodle position so it's on top of the platform
       doodle.y = platform.y - doodle.height;
       doodle.dy = bounceVelocity;
+
+      // Play jump sound
+      jumpSound.currentTime = 0; // Rewind sound to start
+      jumpSound.play();
     }
   });
 
