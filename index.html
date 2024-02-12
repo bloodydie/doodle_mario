@@ -159,6 +159,15 @@
       }
     }
 
+    // Generate initial platforms
+    for (let i = 0; i < 10; i++) {
+    platforms.push({
+        x: random(0, canvas.width - platformWidth),
+        y: platformStart - i * (platformHeight + random(minPlatformSpace, maxPlatformSpace)),
+        spawned: false // No coin spawned on the newly created platform
+      });
+    }
+
     // Game over function
     function gameOver() {
       if (!gameOverFlag) {
