@@ -118,11 +118,12 @@ platformImg.onload = function() {
   // Load jump sound
   const jumpSound = document.getElementById('jumpSound');
   jumpSound.load(); // Charge le son dès le début
-  jumpSound.volume = 0.5; // Réglez le volume à 50%
+  jumpSound.volume = 0.3; // Réglez le volume à 30%
 
   // Load fall sound
   const fallSound = document.getElementById('fallSound');
   fallSound.load(); // Charge le son dès le début
+  fallSound.volume = 0.7; // Réglez le volume à 70%
 
   // game loop
   function loop() {
